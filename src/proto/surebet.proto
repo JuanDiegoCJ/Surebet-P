@@ -1,0 +1,38 @@
+syntax = "proto3";
+package surebet;
+
+message SurebetItem {
+  string typesurebet = 1;
+  string arbprofit = 2;
+  string middle = 3;
+  string sportname = 4;
+  string fulltime = 5;
+  string arbgenerationtime = 6;
+  string bookmaker = 7;
+  string currentscore = 8;
+  string eventname = 9;
+  string eventstarttime = 10;
+  string leaguename = 11;
+  string arboutcome = 12;
+  string directionodd = 13;
+  string odd = 14;
+  string gamescore = 15;
+  string currencyodd = 16;
+  string created = 17;
+  string createddate = 18;
+  string arbid = 19;
+  string eventid = 20;
+  string section = 21;
+  string color = 22;
+  string wrongitem = 23;
+  string clon = 24;
+  string origen = 25;
+  string tipo = 26;
+  string link = 27;
+  string funds = 28;
+}
+
+message SurebetList {
+  repeated SurebetItem items = 1;
+  int32 totalcount = 2;
+}

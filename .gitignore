@@ -1,0 +1,49 @@
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+
+# Logs and databases
+logs/
+*.log
+*.sqlite
+
+# IDE specific files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# TypeScript build output
+*.js
+*.js.map
+*.d.ts
+
+# React/Vite specific
+.vite/
+
+# Lockfiles
+yarn.lock
+pnpm-lock.yaml
+
+# Editor config
+.editorconfig
+
+# Coverage reports
+coverage/
+
+# Temporary files
+tmp/
+*.tmp
+*.swp
+*.swo
+
+# Local development
+.local/

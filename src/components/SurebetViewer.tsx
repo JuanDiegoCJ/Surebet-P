@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as proto from '../proto/surebet';
+import SurebetBlock from './SurebetBlock';
 
 interface SurebetViewerProps {
   base64Data: string;
@@ -17,14 +18,9 @@ const SurebetViewer = ({ base64Data }: SurebetViewerProps) => {
     }
 
     try {
-      // Limpia la cadena: elimina TODO lo que no sea Base64
       const cleanBase64 = base64Data.trim().replace(/[^A-Za-z0-9+/=]/g, '');
-
-      // Decodifica Base64 → binario → Uint8Array
       const binaryString = atob(cleanBase64);
       const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
-
-      // Decodifica protobuf
       const message = proto.surebet.SurebetList.decode(bytes);
       setItems(message.items || []);
       setError(null);
@@ -48,37 +44,37 @@ const SurebetViewer = ({ base64Data }: SurebetViewerProps) => {
     return <div className="text-red-600 font-medium">{error}</div>;
   }
 
+  // Agrupamiento
+  const grouped: Record<string, proto.surebet.ISurebetItem[]> = {};
+  items.forEach(item => {
+    if (item.arbid) {
+      if (!grouped[item.arbid]) grouped[item.arbid] = [];
+      grouped[item.arbid].push(item);
+    }
+  });
+
+  const pairs = Object.values(grouped).filter(pair => pair.length >= 2);
+
   return (
-    <table className="min-w-full border-collapse border border-gray-300 mt-4">
-      <thead>
-        <tr className="bg-gray-100">
-          <th className="border border-gray-300 px-4 py-2">Evento</th>
-          <th className="border border-gray-300 px-4 py-2">Deporte</th>
-          <th className="border border-gray-300 px-4 py-2">Ganancia (%)</th>
-          <th className="border border-gray-300 px-4 py-2">Casa</th>
-          <th className="border border-gray-300 px-4 py-2">Cuota</th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.length === 0 ? (
-          <tr>
-            <td colSpan={5} className="px-4 py-2 text-center text-gray-500">
-              No se encontraron elementos.
-            </td>
-          </tr>
-        ) : (
-          items.map((item, idx) => (
-            <tr key={idx} className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">{item.eventname || '—'}</td>
-              <td className="border border-gray-300 px-4 py-2">{item.sportname || '—'}</td>
-              <td className="border border-gray-300 px-4 py-2">{item.arbprofit || '—'}</td>
-              <td className="border border-gray-300 px-4 py-2">{item.bookmaker || '—'}</td>
-              <td className="border border-gray-300 px-4 py-2">{item.odd || '—'}</td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+    <div className="bg-slate-50 p-5 rounded-xl shadow-md">
+      <div className="flex justify-between items-center pb-4 border-b mb-4">
+        <h2 className="flex items-center gap-3 text-lg font-bold">
+          Visualizador de Surebets
+        </h2>
+      </div>
+
+      {pairs.length === 0 ? (
+        <div className="text-center p-8 text-gray-500 italic">
+          No se encontraron surebets.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {pairs.map(pair => (
+            <SurebetBlock key={pair[0].arbid} pair={pair} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

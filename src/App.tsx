@@ -10,7 +10,7 @@ function App() {
       <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Pega aquí tu cadena Base64..."
+        placeholder="Inserta el contenido Base64..."
         className="w-full h-32 p-3 border border-gray-300 rounded-md"
       />
       <SurebetViewer base64Data={input} />

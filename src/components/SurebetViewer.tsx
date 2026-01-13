@@ -65,7 +65,7 @@ const SurebetViewer = ({ base64Data }: SurebetViewerProps) => {
 
       {pairs.length === 0 ? (
         <div className="text-center p-8 text-gray-500 italic">
-          No se encontraron surebets.
+          No se encontraron surebets
         </div>
       ) : (
         <div className="flex flex-col gap-4">

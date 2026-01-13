@@ -2,10 +2,8 @@ import { FaTrash, FaArrowRight } from 'react-icons/fa';
 import SurebetLegRow from './SurebetLegRow';
 import * as proto from '../proto/surebet';
 
-type ISurebetItem = proto.surebet.ISurebetItem;
-
 interface Props {
-  pair: ISurebetItem[];
+  pair: proto.surebet.ISurebetItem[];
 }
 
 const getMarkerColorClass = (color: string | null | undefined) => {
@@ -19,7 +17,6 @@ const getMarkerColorClass = (color: string | null | undefined) => {
 
 const SurebetBlock = ({ pair }: Props) => {
   const first = pair[0];
-  const second = pair[1];
 
   return (
     <div className="mb-6 rounded-lg overflow-hidden border border-slate-200 bg-white shadow-sm w-full">
@@ -40,17 +37,17 @@ const SurebetBlock = ({ pair }: Props) => {
         <div className="flex items-center pr-4 gap-4 text-[0.85rem] text-slate-200">
           <span className="text-white">{first.arbgenerationtime || '—'}</span>
           <div className="cursor-pointer p-1.5 border border-rose-500 text-rose-500 hover:text-rose-700 hover:border-rose-700 transition-colors rounded">
-            <FaTrash />
+            <FaTrash size={12} />
           </div>
           <div className="cursor-pointer hover:opacity-80">
-            <FaArrowRight />
+            <FaArrowRight size={12} />
           </div>
         </div>
       </div>
 
       <div className="w-full">
         <SurebetLegRow leg={first} isEven={false} />
-        <SurebetLegRow leg={second} isEven={true} />
+        {pair[1] && <SurebetLegRow leg={pair[1]} isEven={true} />}
       </div>
     </div>
   );

@@ -22,9 +22,9 @@ logs/
 Thumbs.db
 
 # TypeScript build output
-*.js
+#*.js
 *.js.map
-*.d.ts
+#*.d.ts
 
 # React/Vite specific
 .vite/

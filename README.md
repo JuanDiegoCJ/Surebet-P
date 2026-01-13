@@ -10,13 +10,15 @@ La aplicación decodifica estos datos, extrae la información relevante y la mue
 
 Implementar un visor sencillo pero robusto que:
 
-**a** Reciba una cadena Base64 desde un textarea.
+**a** Reciba una cadena Base64 desde un `textarea`.
 **b** La decodifique a bytes binarios.
 **c** Use la librería generada de protobuf (`src/proto/surebet.js`) para deserializarla a un objeto `SurebetList`.
-**d** Agrupe los resultados por `arbid` (cada surebet = 2 casas).
+**d** Agrupe los resultados por
+- `arbid` (identificador único de la surebet).
+- `eventname` y `leaguename` (para evitar falsos positivos).
 **e** Muestre los datos en bloques visuales con:
 - Cabecera: Ganancia (%), Deporte, Tiempo.
-- Cuerpo: 2 filas (**Casa**, **Evento**, **Outcome**, **Cuota** y **Nivel**).
+- Cuerpo: 2 filas (**Casa**, **Evento**, **Outcome**, **Cuota** y **flechas** **↑/↓** según `directionodd`).
 **f** Maneje errores de forma amigable (Base64 inválido, protobuf corrupto, etc.) sin romper la app.
 **g** Se actualice dinámicamente al pegar nuevos datos.
 
@@ -47,7 +49,7 @@ src/
 │   └── surebet.proto       # Definición original del mensaje protobuf
 └── components/
     ├── SurebetViewer.tsx   # Componente principal: gestiona estado y agrupación
-    ├── SurebetBlock.tsx    # Bloque visual de una surebet (cabecera + 2 filas)
+    ├── SurebetBlock.tsx    # Bloque visual: cabecera + cuerpo (2 filas)
     └── SurebetLegRow.tsx   # Fila individual de una casa de apuestas
 
 
@@ -65,14 +67,15 @@ El componente `SurebetViewer` recibe una prop `base64Data: string`.
    - Convierte ese string en `Uint8Array` usando `Uint8Array.from(...)`.
 3. **Decodificación protobuf**:
    - Importa `proto.surebet.SurebetList`.
-   - Usa `SurebetList.decode(bytes)` o `decodeDelimited()` según sea necesario.
+   - Usa `SurebetList.decode(bytes)` (el backend serializa con `Marshal`, no `encodeDelimited`).
    - Extrae `message.items` y los guarda en estado local.
 4. **Agrupación por arbid**:
-   - Agrupa los items por `arbid` (cada surebet debe tener 2 elementos).
-   - Filtra solo grupos con 2 o más elementos.
+   - Crea una clave compuesta: `${arbid}|${eventname}|${leaguename}`.
+   - Solo se consideran grupos con exactamente 2 elementos (una surebet completa).
 5. **Renderizado**:
-   - Para cada par, renderiza un `SurebetBlock`.
-   - El bloque contiene cabecera (ganancia, deporte, tiempo) y cuerpo (2 filas con `SurebetLegRow`).
+   - Para cada par válido, renderiza un `SurebetBlock`.
+   - El bloque incluye cabecera con ganancia, deporte, tiempo y botón de eliminación.
+   - El cuerpo usa `SurebetLegRow` para mostrar cada casa con íconos de dirección de las flechas.
 5. **Manejo de errores**:
    - Todo dentro de un `try/catch` en `useEffect`.
    - Errores capturados se muestran en UI sin romper la app.
@@ -84,7 +87,10 @@ El componente `SurebetViewer` recibe una prop `base64Data: string`.
 La aplicación espera una cadena Base64 que representa un mensaje `SurebetList` serializado en protobuf. El ejemplo válido se encuentra en el archivo `surebet.txt` dentro de la carpeta de `archivo_surebets`.
 
 ## 🛠️ Configuración del Backend (Contexto)
-NOTA: El backend ya existe y genera los datos en formato protobuf. Sólo se trabaja en el frontend.
+NOTA: El backend ya existe y genera los datos en formato protobuf. Sólo se trabaja en el frontend. Los datos provienen de Go que:
+- Serializa objetos `SurebetList` con `proto.Marshal()`.
+- Almacena el binario en Redis.
+- Lo entrega como cadena Base64 estándar (sin saltos de línea).
 
 Los datos provienen de un sistema que serializa objetos `SurebetList` (definidos en `surebet.proto`) y los entrega como Base64.
 
@@ -155,10 +161,7 @@ c. Inicia el servidor de desarrollo: npm run dev
 d. Abre tu navegador en http://localhost:5173.
 
 ## 📝 Notas Adicionales
-El componente SurebetViewer utiliza hooks de manera correcta: useState para gestionar items y error, y useEffect con dependencia [base64Data] para reaccionar a cambios.
-El código está estructurado para ser legible y fácil de mantener.
-Se priorizó la claridad sobre la optimización extrema, aunque se pueden hacer mejoras posteriores (como memorización o carga diferida).
-
-- El componente `SurebetViewer` utiliza hooks de manera correcta: `useState` para gestionar `items` y `error`, y `useEffect` con dependencia [base64Data] para reaccionar a cambios.
+- El componente `SurebetViewer` utiliza hooks de manera correcta: `useState` para gestionar `items` y `error`, y useEffect con dependencia [base64Data] para reaccionar a cambios.
+- El emparejamiento es seguro y preciso: se requiere coincidencia en `arbid`, `eventname` y `leaguename`.
 - El código está estructurado en componentes modulares (`SurebetBlock`, `SurebetLegRow`) para facilitar la mantenibilidad.
-- Se priorizó la claridad sobre la optimización extrema, aunque se pueden hacer mejoras posteriores (como memoización, carga diferida, o integración con WebSocket).
+- Se priorizó la claridad sobre la optimización extrema, aunque se pueden hacer mejoras posteriores (como memoización o integración con WebSocket).

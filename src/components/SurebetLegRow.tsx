@@ -1,10 +1,8 @@
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import * as proto from '../proto/surebet';
 
-type ISurebetItem = proto.surebet.ISurebetItem;
-
 interface Props {
-  leg: ISurebetItem;
+  leg: proto.surebet.ISurebetItem;
   isEven: boolean;
 }
 
@@ -32,10 +30,10 @@ const SurebetLegRow = ({ leg, isEven }: Props) => {
       </div>
       <div className="flex items-center justify-end gap-1 font-bold text-base text-slate-800">
         {leg.directionodd === 'UP' ? (
-          <FaArrowUp className="text-emerald-500 text-xs" />
-        ) : (
-          <FaArrowDown className="text-red-500 text-xs" />
-        )}
+          <FaArrowUp className="text-emerald-500" size={16} />
+        ) : leg.directionodd === 'DOWN' ? (
+          <FaArrowDown className="text-red-500" size={16} />
+        ) : null}
         {leg.odd || '—'}
       </div>
     </div>
